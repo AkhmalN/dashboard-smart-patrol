@@ -2,6 +2,8 @@
 
 Aplikasi ini adalah dashboard berbasis Vue.js yang menggunakan Pinia untuk manajemen state. Aplikasi ini memiliki beberapa fitur untuk mengelola berbagai data seperti POS, user, absensi, patroli, dan aktivitas.
 
+![Tampilan Dashboard](./public/app.png)
+
 ## Fitur
 
 - **Chart Dashboard**: Menampilkan grafik interaktif untuk visualisasi data yang dinamis.
