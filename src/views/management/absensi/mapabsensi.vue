@@ -1,114 +1,67 @@
 <script setup>
-import { cilLocationPin } from '@coreui/icons'
-import CIcon from '@coreui/icons-vue'
-import { CButton, CModal, CModalBody, CModalHeader, CModalTitle, CSpinner } from '@coreui/vue'
-import { ref, watch, nextTick, reactive } from 'vue'
-import { useAbsensiStore } from '../../../stores/absensi'
+import { onMounted, watch, ref, reactive, nextTick, computed } from 'vue';
+import { CBadge, CModal, CModalBody, CModalHeader, CModalTitle, CSpinner } from '@coreui/vue';
+import { useAbsensiStore } from '../../../stores/absensi';
+import MapInit from '../../../components/MapInit.vue';
 
-const { data } = defineProps({
+const store = useAbsensiStore();
+const props = defineProps({
   data: {
     required: true,
   },
-})
+  visible: Boolean,
+});
 
-const L = window.L
-const store = useAbsensiStore()
-const visibleModal = ref(false)
-const mapContainer = ref(null)
 const coordinat = reactive({
-  username: '',
-  latitude: '',
-  longitude: '',
-})
-let mapInstance = null
-let marker = null // Store marker reference
+  latitude: 0,
+  longitude: 0,
+  nama: '',
+});
 
-const toggleModal = (state) => {
-  visibleModal.value = state
-}
+console.log(coordinat.nama);
 
-const initMap = () => {
-  // If map instance exists, update it, otherwise create a new one
-  if (mapInstance && mapContainer.value) {
-    mapInstance.setView([coordinat.latitude, coordinat.longitude], 13)
-    // Update marker position if marker exists
-    if (marker) {
-      marker.setLatLng([coordinat.latitude, coordinat.longitude])
-      marker.bindPopup(`User: ${coordinat.username}`).openPopup()
-    }
-  } else if (mapContainer.value) {
-    mapInstance = L.map(mapContainer.value).setView([coordinat.latitude, coordinat.longitude], 13)
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(mapInstance)
-
-    // Create marker and bind popup
-    marker = L.marker([coordinat.latitude, coordinat.longitude])
-      .addTo(mapInstance)
-      .bindPopup(`User: ${coordinat.username}`)
-      .openPopup()
-  }
-}
+const emit = defineEmits(['update:visible']);
 
 watch(
-  () => visibleModal.value,
-  async (newData) => {
-    if (visibleModal.value) {
-      await nextTick()
-      store.fetchAbsensiById(data)
-      initMap()
+  () => props.visible,
+  async (val) => {
+    if (val && props.data) {
+      await store.fetchAbsensiById(props.data?._id);
+      const detail = store.absensiDetail;
+      console.log(detail);
+      Object.assign(coordinat, {
+        latitude: detail.latitude,
+        longitude: detail.longitude,
+        nama: detail.nama_lengkap,
+      });
+      await nextTick();
     }
   },
-)
-
-watch(
-  () => store.absensiDetail,
-  (result) => {
-    if (result) {
-      coordinat.latitude = result.latitude
-      coordinat.longitude = result.longitude
-      coordinat.username = result.nama_lengkap
-    }
-  },
-)
-
-watch([() => coordinat.latitude, () => coordinat.longitude], () => {
-  if (coordinat.latitude && coordinat.longitude) {
-    initMap()
-  }
-})
+);
 </script>
 
 <template>
-  <CButton color="warning" variant="outline" @click="toggleModal(true)">
-    <CIcon :icon="cilLocationPin" class="text-warning" />
-  </CButton>
-
-  <CModal
-    alignment="center"
-    :visible="visibleModal"
-    @close="toggleModal(false)"
-    aria-labelledby="VerticallyCenteredExample"
-  >
+  <CModal :visible="props.visible" @close="emit('update:visible', false)" alignment="center">
     <CModalHeader>
-      <CModalTitle id="VerticallyCenteredExample">
-        Map for user: {{ data.nama_lengkap }}
-      </CModalTitle>
+      <CModalTitle> Lokasi terakhir: {{ props.data?.nama_lengkap || '...' }} </CModalTitle>
     </CModalHeader>
     <CModalBody>
       <template v-if="store.loadingDetail">
         <div class="d-flex align-items-center gap-2">
-          <CSpinner color="secondary" class="text-sm" size="sm" />
-          <span class="text-secondary">Loading...</span>
+          <CSpinner color="secondary" size="sm" />
+          <span>Loading...</span>
         </div>
       </template>
-
       <template v-else>
-        <p>Coordinates: {{ coordinat.latitude }}, {{ coordinat.longitude }}</p>
+        <CBadge color="danger" style="font-size: 14px; margin-bottom: 10px">
+          Coordinat : {{ coordinat.latitude }}, {{ coordinat.longitude }}</CBadge
+        >
+        <MapInit
+          :latitude="coordinat.latitude"
+          :longitude="coordinat.longitude"
+          :marker-label="coordinat.nama"
+        />
       </template>
-      <div ref="mapContainer" style="height: 400px"></div>
     </CModalBody>
   </CModal>
 </template>

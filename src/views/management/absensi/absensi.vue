@@ -1,7 +1,7 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import { cilBarcode, cilFile, cilLocationPin } from '@coreui/icons'
-import CIcon from '@coreui/icons-vue'
+import { onMounted, ref } from 'vue';
+import { cilBarcode, cilFile, cilLocationPin } from '@coreui/icons';
+import CIcon from '@coreui/icons-vue';
 import {
   CTable,
   CTableBody,
@@ -20,29 +20,40 @@ import {
   CPagination,
   CPaginationItem,
   CBadge,
-} from '@coreui/vue'
-import { computed } from 'vue'
-import { useAbsensiStore } from '../../../stores/absensi'
-import Detailabsensi from './detailabsensi.vue'
-import { DateFormat, TimeFormat } from '../../../utils/date'
-import Mapabsensi from './mapabsensi.vue'
+} from '@coreui/vue';
+import { computed } from 'vue';
+import { useAbsensiStore } from '../../../stores/absensi';
+import Detailabsensi from './detailabsensi.vue';
+import { DateFormat, TimeFormat } from '../../../utils/date';
+import Mapabsensi from './mapabsensi.vue';
+import HapusAbsensi from './hapusabsensi';
 
-const store = useAbsensiStore()
-const currentPage = computed(() => store.currentPage)
-const totalPages = computed(() => store.totalPages)
+const store = useAbsensiStore();
+const currentPage = computed(() => store.currentPage);
+const totalPages = computed(() => store.totalPages);
+
+const selectedMapData = ref(null);
+const mapVisible = ref(false);
 
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
-    store.setPage(page)
+    store.setPage(page);
   }
-}
+};
 function handleSelectChange(event) {
-  store.setSelected(event.target.value)
+  store.setSelected(event.target.value);
 }
 
-onMounted(() => store.fetchAbsensi())
+const openMapModal = (data) => {
+  selectedMapData.value = data;
+  mapVisible.value = true;
+};
+
+onMounted(() => store.fetchAbsensi());
 </script>
 <template>
+  <Mapabsensi :data="selectedMapData" v-model:visible="mapVisible" />
+
   <CCard>
     <CCardHeader>
       <CRow class="d-flex align-items-center justify-content-between">
@@ -83,15 +94,23 @@ onMounted(() => store.fetchAbsensi())
         <CTableBody>
           <template v-if="store.loading">
             <CTableRow>
-              <CTableDataCell colspan="4" class="d-flex align-items-center gap-2">
+              <CTableDataCell
+                colspan="8"
+                class="text-center"
+                style="width: 100%; display: table-cell"
+              >
                 <CSpinner color="secondary" class="text-sm" size="sm" />
-                <span class="text-secondary">Loading...</span>
+                <span class="text-secondary"> Loading...</span>
               </CTableDataCell>
             </CTableRow>
           </template>
           <template v-else-if="store.absensiData.length < 1">
             <CTableRow>
-              <CTableDataCell colspan="4" class="d-flex align-items-center gap-2">
+              <CTableDataCell
+                colspan="8"
+                class="text-center"
+                style="width: 100%; display: table-cell"
+              >
                 <span class="text-secondary">No Available data.</span>
               </CTableDataCell>
             </CTableRow>
@@ -103,7 +122,13 @@ onMounted(() => store.fetchAbsensi())
               }}</CTableHeaderCell>
               <CTableDataCell>{{ data.nama_lengkap }}</CTableDataCell>
               <CTableDataCell>{{ data.lokasi_absen }}</CTableDataCell>
-              <CTableDataCell><Mapabsensi :data="data._id" /></CTableDataCell>
+              <CTableDataCell
+                ><CTableDataCell>
+                  <CButton color="warning" variant="outline" @click="openMapModal(data)" size="sm">
+                    <CIcon :icon="cilLocationPin" class="text-warning" />
+                  </CButton>
+                </CTableDataCell>
+              </CTableDataCell>
               <CTableDataCell>{{ DateFormat(data.createdAt) }}</CTableDataCell>
 
               <CTableDataCell
@@ -113,8 +138,11 @@ onMounted(() => store.fetchAbsensi())
               <CTableDataCell>{{ data.total_jam_kerja }}</CTableDataCell>
               <CTableDataCell>
                 <CRow>
-                  <CCol sm="auto">
+                  <!-- <CCol sm="auto">
                     <Detailabsensi :data="data._id" />
+                  </CCol> -->
+                  <CCol sm="auto">
+                    <HapusAbsensi :data="data._id" />
                   </CCol>
                 </CRow>
               </CTableDataCell>
