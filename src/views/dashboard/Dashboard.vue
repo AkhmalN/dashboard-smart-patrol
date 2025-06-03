@@ -28,34 +28,40 @@ onMounted(() => {
 
 <template>
   <AppWidget />
-  <CRow class="row row-cols-2">
-    <CCol>
-      <CCard class="mt-4">
+
+  <CRow class="g-4 mt-2">
+    <!-- Chart Status -->
+    <CCol xs="12" md="6">
+      <CCard>
         <CCardBody>
           <template v-if="patroliStore.loading">
-            <CSpinner color="secondary" class="text-sm" size="sm" />
+            <CSpinner color="secondary" size="sm" />
             <span class="text-secondary">Loading...</span>
           </template>
           <AppBarChartStatus v-else />
         </CCardBody>
       </CCard>
     </CCol>
-    <CCol>
-      <CCard class="mt-4">
+
+    <!-- Chart Instansi -->
+    <CCol xs="12" md="6">
+      <CCard>
         <CCardBody>
           <template v-if="patroliStore.loading">
-            <CSpinner color="secondary" class="text-sm" size="sm" />
+            <CSpinner color="secondary" size="sm" />
             <span class="text-secondary">Loading...</span>
           </template>
           <AppBarChartInstansi v-else />
         </CCardBody>
       </CCard>
     </CCol>
-    <CCol>
-      <CCard class="mt-4">
+
+    <!-- Pie Chart Pos -->
+    <CCol xs="12">
+      <CCard>
         <CCardBody>
           <template v-if="posStore.loading">
-            <CSpinner color="secondary" class="text-sm" size="sm" />
+            <CSpinner color="secondary" size="sm" />
             <span class="text-secondary">Loading...</span>
           </template>
           <AppPieChart v-else />

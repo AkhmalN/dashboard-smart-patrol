@@ -17,8 +17,23 @@ const data = computed(() => {
     ],
   }
 })
+
+const options = {
+  responsive: true,
+  maintainAspectRatio: false, // supaya ukuran fleksibel saat legend di kanan
+  plugins: {
+    legend: {
+      position: 'right', // <- ini mengatur posisi legend
+      labels: {
+        usePointStyle: true, // opsional, agar bulatan legend lebih rapi
+      },
+    },
+  },
+}
 </script>
 
 <template>
-  <CChartPie :data="data" v-show="!store.loading" />
+  <div style="width: 60%; height: 80%">
+    <CChartPie :data="data" :options="options" v-show="!store.loading" />
+  </div>
 </template>
