@@ -6,11 +6,13 @@ import { useUserStore } from '../../stores/user'
 import { useAbsensiStore } from '../../stores/absensi'
 import { usePatroliStore } from '../../stores/patroli'
 import { usePosStore } from '../../stores/pos'
+import { useAktivitasStore } from '../../stores/aktivitas.js'
 
 const userStore = useUserStore()
 const absensiStore = useAbsensiStore()
 const patroliStore = usePatroliStore()
 const posStore = usePosStore()
+const aktivitasStore = useAktivitasStore()
 </script>
 
 <template>
@@ -70,7 +72,7 @@ const posStore = usePosStore()
       </CWidgetStatsF>
     </CCol>
     <CCol :sm="6" :xl="4" :xxl="3">
-      <CWidgetStatsF color="danger" title="Aktivitas" value="$1.999,50">
+      <CWidgetStatsF color="danger" title="Aktivitas" :value="aktivitasStore.aktivitasData.length">
         <template #icon>
           <CIcon :icon="cilRecycle" size="xl" />
         </template>

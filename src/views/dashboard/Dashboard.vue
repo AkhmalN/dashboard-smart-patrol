@@ -9,17 +9,20 @@ import { usePosStore } from '../../stores/pos'
 import AppBarChartInstansi from '../../components/AppBarChartInstansi.vue'
 import AppPieChart from '../../components/AppPieChart.vue'
 import { useAbsensiStore } from '../../stores/absensi'
+import { useAktivitasStore } from '../../stores/aktivitas.js'
 
 const userStore = useUserStore()
 const absensiStore = useAbsensiStore()
 const patroliStore = usePatroliStore()
 const posStore = usePosStore()
+const aktivitasStore = useAktivitasStore()
 
 onMounted(() => {
   patroliStore.fetchPatroli()
   posStore.fetchPos()
   userStore.fetchUsers()
   absensiStore.fetchAbsensi()
+  aktivitasStore.fetchAktivitas()
 })
 </script>
 
